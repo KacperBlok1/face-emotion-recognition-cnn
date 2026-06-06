@@ -1,0 +1,200 @@
+INSTRUKCJA PRACY Z MODELEM - WERSJA SREDNIO ZAAWANSOWANA
+=========================================================
+
+Projekt jest teraz ustawiony jako srednio zaawansowany:
+- wlasny model CNN,
+- obrazy grayscale 48x48,
+- jeden etap treningu,
+- validation split z data/train,
+- data/test tylko do koncowej ewaluacji,
+- brak ciezkiego transfer learningu.
+
+Celem tej wersji jest czytelny projekt, ktory da sie wyjasnic i wytrenowac
+w rozsadnym czasie. Trening nie powinien trwac dluzej niz okolo 20 minut
+na zwyklym komputerze z GPU.
+
+
+1. AKTYWACJA SRODOWISKA
+----------------------
+
+W terminalu VS Code, w folderze projektu:
+
+    .\.venv\Scripts\activate
+
+Jesli srodowisko jest aktywne, terminal pokazuje:
+
+    (.venv)
+
+
+2. STRUKTURA DANYCH
+------------------
+
+Wymagana struktura:
+
+    data/
+      train/
+        angry/
+        disgust/
+        fear/
+        happy/
+        neutral/
+        sad/
+        surprise/
+      test/
+        angry/
+        disgust/
+        fear/
+        happy/
+        neutral/
+        sad/
+        surprise/
+
+Wazne:
+- data/train sluzy do treningu,
+- validation jest automatycznie wydzielane z data/train,
+- data/test nie jest uzywane podczas treningu,
+- data/test sluzy tylko do koncowej oceny.
+
+
+3. TRENING MODELU
+----------------
+
+Uruchom:
+
+    python train.py
+
+Co robi trening:
+- buduje model FER_Medium_CNN,
+- trenuje maksymalnie 35 epok,
+- uzywa EarlyStopping, wiec moze skonczyc szybciej,
+- zapisuje najlepszy model po val_accuracy.
+
+Pliki po treningu:
+
+    models/best_model.keras
+    models/best_model.h5
+    reports/training_log.csv
+    reports/training_history.json
+    reports/training_history.png
+    reports/training_config.json
+    reports/validation_classification_report.txt
+
+Jesli trening jest zbyt wolny, zmien w train.py:
+
+    BATCH_SIZE = 128
+
+na:
+
+    BATCH_SIZE = 64
+
+Jesli komputer daje rade, zostaw 128.
+
+
+4. EWALUACJA NA ZBIORZE TESTOWYM
+--------------------------------
+
+Po treningu uruchom:
+
+    python evaluate.py
+
+To sprawdza model na data/test, czyli na danych, ktorych model nie widzial
+w treningu ani walidacji.
+
+Wyniki:
+
+    reports/classification_report.txt
+    reports/confusion_matrix.png
+
+Najwazniejsze:
+- FINAL TEST ACCURACY,
+- f1-score dla kazdej emocji,
+- confusion_matrix.png, czyli ktore klasy model myli.
+
+
+5. PREDYKCJA NA POJEDYNCZYM ZDJECIU
+-----------------------------------
+
+Przyklad:
+
+    python predict_image.py --image "C:\sciezka\do\zdjecia.jpg"
+
+Skrypt:
+- wykrywa twarz przez Haar Cascade,
+- lekko powieksza crop twarzy,
+- konwertuje obraz do grayscale,
+- skaluje do 48x48,
+- robi predykcje,
+- zapisuje obraz wynikowy do reports.
+
+Mozesz zmienic margines cropa:
+
+    python predict_image.py --image "zdjecie.jpg" --margin 0.20
+
+
+6. URUCHOMIENIE APLIKACJI WEBOWEJ
+--------------------------------
+
+Po wytrenowaniu modelu:
+
+    python -m uvicorn app:app --host 127.0.0.1 --port 8002 --reload
+
+Adres:
+
+    http://127.0.0.1:8002
+
+Zatrzymanie serwera:
+
+    Ctrl + C
+
+Jesli proces zostal w tle:
+
+    netstat -ano | findstr :8002
+    taskkill /PID TUTAJ_PID /F
+
+
+7. CO ROBIC PRZY SLABYM WYNIKU
+-----------------------------
+
+Najpierw sprawdz:
+
+    python evaluate.py
+
+Potem patrz w:
+
+    reports/classification_report.txt
+    reports/confusion_matrix.png
+
+Mozliwe poprawki, nadal w ramach srednio zaawansowanego projektu:
+- zwiekszyc EPOCHS z 35 do 45,
+- zmienic BATCH_SIZE na 64,
+- lekko zmniejszyc augmentacje w train.py,
+- sprawdzic, czy dane w folderach maja poprawne etykiety,
+- usunac bardzo zle albo blednie podpisane zdjecia.
+
+Nie ma juz transfer learningu ani rozbudowanego fine-tuningu. Ten projekt ma
+byc prostszy, szybszy i bardziej zrozumialy.
+
+
+8. REKOMENDOWANA KOLEJNOSC
+--------------------------
+
+1. Aktywuj srodowisko:
+
+       .\.venv\Scripts\activate
+
+2. Trenuj:
+
+       python train.py
+
+3. Ocen na test set:
+
+       python evaluate.py
+
+4. Testuj pojedyncze zdjecie:
+
+       python predict_image.py --image "sciezka\do\zdjecia.jpg"
+
+5. Uruchom aplikacje:
+
+       python -m uvicorn app:app --host 127.0.0.1 --port 8002 --reload
+

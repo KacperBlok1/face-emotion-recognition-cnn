@@ -1,0 +1,16 @@
+=== Validation Classification Report ===
+Validation split comes from data/train only. data/test is reserved for final evaluation.
+
+              precision    recall  f1-score   support
+
+       Angry     0.5368    0.5476    0.5421       599
+     Disgust     0.8462    0.1692    0.2821        65
+        Fear     0.7574    0.1678    0.2747       614
+       Happy     0.8152    0.9011    0.8560      1082
+     Neutral     0.4725    0.7863    0.5903       744
+         Sad     0.5209    0.4641    0.4909       724
+    Surprise     0.7478    0.7305    0.7391       475
+
+    accuracy                         0.6240      4303
+   macro avg     0.6710    0.5381    0.5393      4303
+weighted avg     0.6525    0.6240    0.6004      4303

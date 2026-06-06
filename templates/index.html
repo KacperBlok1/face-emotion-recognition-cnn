@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rozpoznawanie Emocji Twarzy na Żywo - FER2013 + CNN</title>
+    
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS Stylesheet -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="background-decorations">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Main Dashboard Header -->
+        <header class="app-header">
+            <div class="header-logo">
+                <span class="logo-icon">🧠</span>
+                <h1>Aplikacja Rozpoznawania Emocji Twarzy</h1>
+            </div>
+            <p class="subtitle">System Real-Time oparty na sieciach konwolucyjnych (CNN) i bazie FER-2013</p>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Left Side: Camera Container -->
+            <section class="card camera-section">
+                <div class="card-header">
+                    <h2>Podgląd z Kamerki na Żywo</h2>
+                    <span class="status-indicator" id="cameraStatus">
+                        <span class="indicator-dot"></span>
+                        <span class="indicator-text">Oczekiwanie...</span>
+                    </span>
+                </div>
+                
+                <div class="video-container">
+                    <!-- Standard video node (hidden but active) -->
+                    <video id="webcam" autoplay playsinline muted></video>
+                    <!-- Visual Canvas overlay for face bounding box drawing -->
+                    <canvas id="canvasOverlay"></canvas>
+                    
+                    <div id="noFacePlaceholder" class="overlay-placeholder active">
+                        <span class="placeholder-icon">📷</span>
+                        <p>Zezwól na dostęp do kamery, aby rozpocząć detekcję...</p>
+                        <button id="btnStartCamera" class="btn btn-primary">Uruchom Kamerę</button>
+                    </div>
+                </div>
+                
+                <div class="camera-controls">
+                    <button id="btnStopCamera" class="btn btn-secondary" disabled>Zatrzymaj Kamerę</button>
+                    <div class="fps-settings">
+                        <label for="intervalSelect">Częstotliwość próbkowania:</label>
+                        <select id="intervalSelect">
+                            <option value="100">Bardzo szybka (100ms)</option>
+                            <option value="150" selected>Zalecana (150ms)</option>
+                            <option value="250">Zrównoważona (250ms)</option>
+                            <option value="500">Oszczędna (500ms)</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Side: Analytics and Confidence widgets -->
+            <section class="card analytics-section">
+                <div class="card-header">
+                    <h2>Analiza Emocji w Czasie Rzeczywistym</h2>
+                </div>
+                
+                <div class="prediction-info-box">
+                    <div class="main-prediction-label">Dominująca Emocja:</div>
+                    <div class="dominant-emotion-display" id="dominantEmotion">Brak Twarzy</div>
+                    <div class="dominant-confidence-bar" id="dominantConfidenceBar">
+                        <div class="confidence-fill" id="dominantConfidenceFill" style="width: 0%;"></div>
+                    </div>
+                    <div class="dominant-confidence-text" id="dominantConfidenceValue">0%</div>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>Prawdopodobieństwo Klasyfikacji</h3>
+                    
+                    <!-- Dynamic Emotion Bars -->
+                    <div class="emotion-bars-list">
+                        {% for emotion in emotions %}
+                        <div class="emotion-bar-row" data-emotion="{{ emotion }}">
+                            <div class="emotion-label-cell">
+                                <span class="emotion-color-bullet" style="background-color: var(--color-{{ emotion.lower() }}, #ccc)"></span>
+                                <span class="emotion-name">{{ emotion }}</span>
+                            </div>
+                            <div class="emotion-progress-cell">
+                                <div class="progress-bar-track">
+                                    <div class="progress-bar-fill" id="bar-{{ emotion }}" style="width: 0%; background-color: var(--color-{{ emotion.lower() }}, #ccc)"></div>
+                                </div>
+                            </div>
+                            <div class="emotion-value-cell" id="value-{{ emotion }}">0.0%</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="info-footer">
+                    <div class="model-badge">Rozdzielczość ROI: 48x48 Grayscale</div>
+                    <div class="model-badge">Format Modelu: TensorFlow/Keras</div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Info Cards for Student Project presentation -->
+        <footer class="project-details card">
+            <h3>Metryki i Szczegóły Projektu</h3>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <h4>Architektura CNN</h4>
+                    <p>3x Bloki Conv2D (32, 64, 128) + Batch Normalization + MaxPooling + Dropout + Dense(256)</p>
+                </div>
+                <div class="detail-item">
+                    <h4>Dane Treningowe</h4>
+                    <p>Baza FER-2013 (48x48 pikseli w odcieniach szarości, 7 klas emocji)</p>
+                </div>
+                <div class="detail-item">
+                    <h4>Detekcja Twarzy</h4>
+                    <p>OpenCV Haar Cascade Classifier (lekki, stabilny i wydajny lokalnie)</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Application Javascript Client -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

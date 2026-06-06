@@ -1,0 +1,19 @@
+{
+    "model": "FER_Medium_CNN",
+    "img_size": 48,
+    "color_mode": "grayscale",
+    "batch_size": 128,
+    "epochs": 35,
+    "validation_split": 0.15,
+    "learning_rate": 0.001,
+    "class_indices": {
+        "angry": 0,
+        "disgust": 1,
+        "fear": 2,
+        "happy": 3,
+        "neutral": 4,
+        "sad": 5,
+        "surprise": 6
+    },
+    "best_validation_accuracy": 0.6444341540336609
+}

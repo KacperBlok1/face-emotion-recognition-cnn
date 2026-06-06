@@ -1,0 +1,21 @@
+=== FER CNN Final Test Classification Report ===
+data/test is used only here, not during training.
+
+Model: models\best_model.keras
+Input: 48x48 grayscale
+Final Test Loss: 1.0134
+Final Test Accuracy: 65.00%
+
+              precision    recall  f1-score   support
+
+       Angry     0.5801    0.5971    0.5885       958
+     Disgust     0.6154    0.2162    0.3200       111
+        Fear     0.5675    0.3037    0.3957      1024
+       Happy     0.8568    0.8771    0.8669      1774
+     Neutral     0.5329    0.7364    0.6183      1233
+         Sad     0.5279    0.5164    0.5221      1247
+    Surprise     0.7526    0.7834    0.7677       831
+
+    accuracy                         0.6500      7178
+   macro avg     0.6333    0.5758    0.5827      7178
+weighted avg     0.6500    0.6500    0.6400      7178
