@@ -14,6 +14,12 @@ Projekt jest celowo utrzymany na srednim poziomie trudnosci: bez ciezkiego trans
 - aplikacja webowa FastAPI z kamera,
 - preprocessing twarzy wspolny dla treningu, ewaluacji i predykcji.
 
+### Historia treningu
+
+Poniżej wykres loss/accuracy z treningu:
+
+![Training history](reports/training_history.png)
+
 ## Struktura
 
 ```text
