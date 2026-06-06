@@ -1,59 +1,106 @@
 # Analiza emocji twarzy na zdjeciach
 
-Srednio zaawansowany projekt rozpoznawania emocji twarzy na podstawie obrazow.
-Projekt uzywa wlasnego modelu CNN trenowanego na danych FER-style w katalogach
-`data/train` i `data/test`.
+Srednio zaawansowany projekt rozpoznawania emocji twarzy. Aplikacja wykrywa twarz na obrazie lub z kamery, wycina obszar twarzy i klasyfikuje emocje przy pomocy wlasnego modelu CNN.
 
-## Co zawiera projekt
+Projekt jest celowo utrzymany na srednim poziomie trudnosci: bez ciezkiego transfer learningu i bez wieloetapowego fine-tuningu. Model jest prosty do wyjasnienia, a trening na GPU powinien miescic sie w rozsadnym czasie.
 
-- `model_definition.py` - definicja sredniego modelu CNN.
-- `train.py` - trening modelu z validation split wydzielonym z `data/train`.
-- `evaluate.py` - finalna ewaluacja na nietykanym `data/test`.
-- `predict_image.py` - predykcja emocji na pojedynczym zdjeciu.
-- `app.py` - aplikacja webowa FastAPI z kamera.
-- `utils/helpers.py` - stale, preprocessing twarzy i funkcje pomocnicze.
-- `templates/` i `static/` - frontend aplikacji.
+## Funkcje
+
+- trening wlasnego modelu CNN,
+- automatyczny validation split z `data/train`,
+- finalna ewaluacja na osobnym `data/test`,
+- raport klasyfikacji i macierz pomylek,
+- predykcja emocji na pojedynczym zdjeciu,
+- aplikacja webowa FastAPI z kamera,
+- preprocessing twarzy wspolny dla treningu, ewaluacji i predykcji.
+
+## Struktura
+
+```text
+.
+|-- app.py                              # backend FastAPI aplikacji webowej
+|-- model_definition.py                 # architektura modelu CNN
+|-- train.py                            # trening modelu
+|-- evaluate.py                         # ewaluacja na data/test
+|-- predict_image.py                    # predykcja na pojedynczym zdjeciu
+|-- prepare_data.py                     # pomocnicze tworzenie struktury danych
+|-- requirements.txt                    # zaleznosci Pythona
+|-- INSTRUKCJA_MODELU.txt               # dokladniejsza instrukcja pracy
+|-- haarcascade_frontalface_default.xml # lokalny detektor twarzy OpenCV
+|-- utils/
+|   `-- helpers.py                      # stale, preprocessing, funkcje pomocnicze
+|-- templates/                          # HTML aplikacji
+|-- static/                             # CSS/JS aplikacji
+|-- data/                               # dataset, ignorowany przez git
+|-- models/                             # zapisane modele, ignorowane przez git
+`-- reports/                            # raporty i wykresy, ignorowane przez git
+```
 
 ## Model
 
-Model pracuje na obrazach:
+Model `FER_Medium_CNN` pracuje na:
 
-- grayscale,
-- 48x48 px,
-- 7 klas emocji:
-  - angry,
-  - disgust,
-  - fear,
-  - happy,
-  - neutral,
-  - sad,
-  - surprise.
+- obrazach grayscale,
+- rozmiarze `48x48`,
+- 7 klasach emocji:
+  - `angry`,
+  - `disgust`,
+  - `fear`,
+  - `happy`,
+  - `neutral`,
+  - `sad`,
+  - `surprise`.
 
-Architektura jest srednio zaawansowana:
+Architektura uzywa:
 
-- kilka blokow `Conv2D`,
+- blokow `Conv2D`,
 - `BatchNormalization`,
 - `MaxPooling2D`,
 - `Dropout`,
 - `GlobalAveragePooling2D`,
-- klasyfikator `Dense`.
+- klasyfikatora `Dense`.
 
-Nie ma tu transfer learningu ani duzego backbone typu EfficientNet/ResNet.
-Dzieki temu trening jest krotszy i projekt jest prostszy do wyjasnienia.
+## Przygotowanie srodowiska
 
-## Instalacja
-
-Aktywuj srodowisko:
+Aktywuj lokalne srodowisko:
 
 ```powershell
 .\.venv\Scripts\activate
 ```
 
-Zainstaluj zaleznosci, jesli trzeba:
+Zainstaluj zaleznosci, jesli nie sa jeszcze zainstalowane:
 
 ```powershell
 pip install -r requirements.txt
 ```
+
+## Dane
+
+Dataset powinien miec taka strukture:
+
+```text
+data/
+|-- train/
+|   |-- angry/
+|   |-- disgust/
+|   |-- fear/
+|   |-- happy/
+|   |-- neutral/
+|   |-- sad/
+|   `-- surprise/
+`-- test/
+    |-- angry/
+    |-- disgust/
+    |-- fear/
+    |-- happy/
+    |-- neutral/
+    |-- sad/
+    `-- surprise/
+```
+
+`data/train` sluzy do treningu. Validation jest automatycznie wydzielane z `data/train`.
+
+`data/test` nie jest uzywane podczas treningu. Sluzy tylko do finalnej ewaluacji.
 
 ## Trening
 
@@ -61,43 +108,84 @@ pip install -r requirements.txt
 python train.py
 ```
 
-Trening:
+Po treningu powstaja:
 
-- uzywa `data/train`,
-- automatycznie wydziela validation split,
-- nie uzywa `data/test`,
-- zapisuje najlepszy model do `models/best_model.keras`.
+```text
+models/best_model.keras
+models/best_model.h5
+reports/training_log.csv
+reports/training_history.json
+reports/training_history.png
+reports/training_config.json
+reports/validation_classification_report.txt
+```
 
 ## Ewaluacja
+
+Po treningu uruchom:
 
 ```powershell
 python evaluate.py
 ```
 
-Ewaluacja uzywa tylko `data/test`.
-Raporty zapisuja sie w `reports/`.
+Ewaluacja korzysta tylko z `data/test`.
 
-## Predykcja jednego zdjecia
+Wyniki:
+
+```text
+reports/classification_report.txt
+reports/confusion_matrix.png
+```
+
+## Predykcja pojedynczego zdjecia
 
 ```powershell
 python predict_image.py --image "sciezka\do\zdjecia.jpg"
 ```
 
+Mozesz zmienic margines wokol wykrytej twarzy:
+
+```powershell
+python predict_image.py --image "sciezka\do\zdjecia.jpg" --margin 0.20
+```
+
 ## Aplikacja webowa
+
+Uruchom backend:
 
 ```powershell
 python -m uvicorn app:app --host 127.0.0.1 --port 8002 --reload
 ```
 
-Adres:
+Otworz:
 
 ```text
 http://127.0.0.1:8002
 ```
 
+Zatrzymanie serwera:
+
+```powershell
+Ctrl + C
+```
+
+## Co jest ignorowane przez git
+
+Repozytorium nie powinno zawierac:
+
+- `.venv/`,
+- `data/`,
+- `models/`,
+- `reports/`,
+- `logs/`,
+- cache Pythona,
+- plikow IDE i systemowych.
+
+Te elementy sa wpisane w `.gitignore`, bo sa lokalne, duze albo generowane automatycznie.
+
 ## Dodatkowa instrukcja
 
-Dokladniejsza instrukcja uruchamiania jest w:
+Dokladniejszy opis pracy krok po kroku znajduje sie w:
 
 ```text
 INSTRUKCJA_MODELU.txt

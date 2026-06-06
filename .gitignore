@@ -1,15 +1,46 @@
+# Python environments
 .venv/
 venv/
-__pycache__/
-*.pyc
+env/
+ENV/
 
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local datasets
 data/
 datasets/
 
+# Trained models and generated ML artifacts
+models/
 *.h5
 *.keras
 *.ckpt
+*.weights.h5
 
+# Reports, plots, logs and generated outputs
+reports/
+logs/
+*.log
+
+# Jupyter
 .ipynb_checkpoints/
+
+# IDE/editor files
+.vscode/
+.idea/
+
+# OS files
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
